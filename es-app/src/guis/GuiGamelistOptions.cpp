@@ -3,6 +3,7 @@
 #include "views/gamelist/IGameListView.h"
 #include "views/ViewController.h"
 #include "Settings.h"
+#include "SystemManager.h"
 
 GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : GuiComponent(window), 
 	mSystem(system), 
@@ -11,7 +12,10 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 	addChild(&mMenu);
 
 	// jump to letter
-	char curChar = getGamelist()->getCursor()->getName()[0];
+	char curChar = toupper(getGamelist()->getCursor().getName()[0]);
+	if(curChar < 'A' || curChar > 'Z') // in the case of unicode characters, pretend it's an A
+		curChar = 'A';
+
 	mJumpToLetterList = std::make_shared<LetterList>(mWindow, "JUMP TO LETTER", false);
 	for(char c = 'A'; c <= 'Z'; c++)
 	{
@@ -37,11 +41,13 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 
 	// sort list by
 	mListSort = std::make_shared<SortList>(mWindow, "SORT GAMES BY", false);
-	for(unsigned int i = 0; i < FileSorts::SortTypes.size(); i++)
+	mListSort->add("TODO", NULL, true);
+	// TODO
+	/*for(unsigned int i = 0; i < FileSorts::SortTypes.size(); i++)
 	{
 		const FileData::SortType& sort = FileSorts::SortTypes.at(i);
 		mListSort->add(sort.description, &sort, i == 0); // TODO - actually make the sort type persistent
-	}
+	}*/
 
 	mMenu.addWithLabel("SORT GAMES BY", mListSort);
 
@@ -70,8 +76,9 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 GuiGamelistOptions::~GuiGamelistOptions()
 {
 	// apply sort
-	FileData* root = getGamelist()->getCursor()->getSystem()->getRootFolder();
-	root->sort(*mListSort->getSelected()); // will also recursively sort children
+	// TODO
+	//FileData* root = getGamelist()->getCursor()->getSystem()->getRootFolder();
+	//root->sort(*mListSort->getSelected()); // will also recursively sort children
 
 	// persist rom filename setting
 	Settings *settings = Settings::getInstance();
@@ -95,18 +102,16 @@ GuiGamelistOptions::~GuiGamelistOptions()
 	}
 
 	// notify that the root folder was sorted
-	getGamelist()->onFileChanged(root, FILE_SORTED);
+	// getGamelist()->onFileChanged(root, FILE_SORTED);
 }
 
 void GuiGamelistOptions::openMetaDataEd()
 {
 	// open metadata editor
-	FileData* file = getGamelist()->getCursor();
-	ScraperSearchParams p;
-	p.game = file;
-	p.system = file->getSystem();
-	mWindow->pushGui(new GuiMetaDataEd(mWindow, &file->metadata, file->metadata.getMDD(), p, file->getPath().filename().string(), 
-		std::bind(&IGameListView::onFileChanged, getGamelist(), file, FILE_METADATA_CHANGED), [this, file] { 
+	const FileData& file = getGamelist()->getCursor();
+	ScraperSearchParams p(file.getSystem(), file);
+	mWindow->pushGui(new GuiMetaDataEd(mWindow, file, 
+		std::bind(&IGameListView::onMetaDataChanged, getGamelist(), file), [this, file] {
 			getGamelist()->remove(file);
 	}));
 }
@@ -117,7 +122,9 @@ void GuiGamelistOptions::jumpToLetter()
 	IGameListView* gamelist = getGamelist();
 
 	// this is a really shitty way to get a list of files
-	const std::vector<FileData*>& files = gamelist->getCursor()->getParent()->getChildren();
+	// TODO
+	/*
+	const std::vector<FileData>& files = gamelist->getCursor()->getParent()->getChildren();
 	
 	long min = 0;
 	long max = files.size() - 1;
@@ -128,10 +135,11 @@ void GuiGamelistOptions::jumpToLetter()
 		mid = ((max - min) / 2) + min;
 
 		// game somehow has no first character to check
-		if(files.at(mid)->getName().empty())
+		const std::string& name = files.at(mid).getName();
+		if(name.empty())
 			continue;
 
-		char checkLetter = toupper(files.at(mid)->getName()[0]);
+		char checkLetter = toupper(name[0]);
 
 		if(checkLetter < letter)
 			min = mid + 1;
@@ -142,6 +150,7 @@ void GuiGamelistOptions::jumpToLetter()
 	}
 
 	gamelist->setCursor(files.at(mid));
+	*/
 
 	delete this;
 }

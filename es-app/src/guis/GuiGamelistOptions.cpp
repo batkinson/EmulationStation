@@ -2,8 +2,8 @@
 #include "GuiMetaDataEd.h"
 #include "views/gamelist/IGameListView.h"
 #include "views/ViewController.h"
-#include "Settings.h"
 #include "SystemManager.h"
+#include "Settings.h"
 
 GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : GuiComponent(window), 
 	mSystem(system), 
@@ -41,13 +41,13 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 
 	// sort list by
 	mListSort = std::make_shared<SortList>(mWindow, "SORT GAMES BY", false);
-	mListSort->add("TODO", NULL, true);
-	// TODO
-	/*for(unsigned int i = 0; i < FileSorts::SortTypes.size(); i++)
+
+	const std::vector<FileSort>& sorts = getFileSorts();
+	for(unsigned int i = 0; i < sorts.size(); i++)
 	{
-		const FileData::SortType& sort = FileSorts::SortTypes.at(i);
-		mListSort->add(sort.description, &sort, i == 0); // TODO - actually make the sort type persistent
-	}*/
+		const FileSort& sort = sorts.at(i);
+		mListSort->add(sort.description, i, i == Settings::getInstance()->getInt("SortTypeIndex"));
+	}
 
 	mMenu.addWithLabel("SORT GAMES BY", mListSort);
 
@@ -75,11 +75,6 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 
 GuiGamelistOptions::~GuiGamelistOptions()
 {
-	// apply sort
-	// TODO
-	//FileData* root = getGamelist()->getCursor()->getSystem()->getRootFolder();
-	//root->sort(*mListSort->getSelected()); // will also recursively sort children
-
 	// persist rom filename setting
 	Settings *settings = Settings::getInstance();
 	bool persistFile = false;
@@ -95,14 +90,19 @@ GuiGamelistOptions::~GuiGamelistOptions()
 		settings->setBool("QuickRomDeletion", mFastDel->getState());
 		persistFile = true;
 	}
+
+	// apply sort if it changed
+	if(mListSort->getSelected() != settings->getInt("SortTypeIndex"))
+	{
+		settings->setInt("SortTypeIndex", mListSort->getSelected());
+		ViewController::get()->onFilesChanged(NULL);
+		persistFile = true;
+	}
 	
 	if (persistFile)
 	{
 		settings->saveFile();
 	}
-
-	// notify that the root folder was sorted
-	// getGamelist()->onFileChanged(root, FILE_SORTED);
 }
 
 void GuiGamelistOptions::openMetaDataEd()

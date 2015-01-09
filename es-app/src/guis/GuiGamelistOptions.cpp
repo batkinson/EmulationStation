@@ -2,6 +2,7 @@
 #include "GuiMetaDataEd.h"
 #include "views/gamelist/IGameListView.h"
 #include "views/ViewController.h"
+#include "Settings.h"
 
 GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : GuiComponent(window), 
 	mSystem(system), 
@@ -44,6 +45,12 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 
 	mMenu.addWithLabel("SORT GAMES BY", mListSort);
 
+	// show rom filename
+	mShowFile = std::make_shared<FileSwitch>(mWindow);
+	mShowFile->setState(Settings::getInstance()->getBool("ShowRomFilename"));
+
+	mMenu.addWithLabel("SHOW FILENAME", mShowFile);
+
 	// edit game metadata
 	row.elements.clear();
 	row.addElement(std::make_shared<TextComponent>(mWindow, "EDIT THIS GAME'S METADATA", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
@@ -61,6 +68,16 @@ GuiGamelistOptions::~GuiGamelistOptions()
 	// apply sort
 	FileData* root = getGamelist()->getCursor()->getSystem()->getRootFolder();
 	root->sort(*mListSort->getSelected()); // will also recursively sort children
+
+	// persist rom filename setting
+	Settings *settings = Settings::getInstance();
+	if (settings->getBool("ShowRomFilename") != mShowFile->getState())
+	{
+		settings->setBool("ShowRomFilename", mShowFile->getState());
+		settings->saveFile();
+		ViewController::get()->reloadAll();
+		return;
+	}
 
 	// notify that the root folder was sorted
 	getGamelist()->onFileChanged(root, FILE_SORTED);

@@ -42,6 +42,7 @@ void Settings::setDefaults()
 	mBoolMap["DrawFramerate"] = false;
 	mBoolMap["ShowExit"] = true;
 	mBoolMap["Windowed"] = false;
+	mBoolMap["ShowRomFilename"] = false;
 
 #ifdef _RPI_
 	// don't enable VSync by default on the Pi, since it already 

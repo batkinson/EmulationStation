@@ -2,6 +2,7 @@
 #include "ThemeData.h"
 #include "Window.h"
 #include "views/ViewController.h"
+#include "Settings.h"
 
 GridGameListView::GridGameListView(Window* window, FileData* root) : ISimpleGameListView(window, root),
 	mGrid(window)
@@ -38,9 +39,12 @@ bool GridGameListView::input(InputConfig* config, Input input)
 void GridGameListView::populateList(const std::vector<FileData*>& files)
 {
 	mGrid.clear();
+
+	Settings *settings = Settings::getInstance();
+	bool showFilename = settings->getBool("ShowRomFilename");
 	for(auto it = files.begin(); it != files.end(); it++)
 	{
-		mGrid.add((*it)->getName(), (*it)->getThumbnailPath(), *it);
+		mGrid.add(showFilename? (*it)->getPath().filename().string() : (*it)->getName(), (*it)->getThumbnailPath(), *it);
 	}
 }
 

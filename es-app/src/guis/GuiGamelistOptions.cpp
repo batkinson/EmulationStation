@@ -48,8 +48,12 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 	// show rom filename
 	mShowFile = std::make_shared<FileSwitch>(mWindow);
 	mShowFile->setState(Settings::getInstance()->getBool("ShowRomFilename"));
-
 	mMenu.addWithLabel("SHOW FILENAME", mShowFile);
+
+	// quick rom deletion
+	mFastDel = std::make_shared<DeleteSwitch>(mWindow);
+	mFastDel->setState(Settings::getInstance()->getBool("QuickRomDeletion"));
+	mMenu.addWithLabel("QUICK ROM DELETE", mFastDel);
 
 	// edit game metadata
 	row.elements.clear();
@@ -71,16 +75,31 @@ GuiGamelistOptions::~GuiGamelistOptions()
 
 	// persist rom filename setting
 	Settings *settings = Settings::getInstance();
+	bool persistFile = false, notifySort = true;
 	if (settings->getBool("ShowRomFilename") != mShowFile->getState())
 	{
-		settings->setBool("ShowRomFilename", mShowFile->getState());
-		settings->saveFile();
+		settings->setBool("ShowRomFilename", mShowFile->getState());		
 		ViewController::get()->reloadAll();
-		return;
+		notifySort = false, persistFile = true;
 	}
 
-	// notify that the root folder was sorted
-	getGamelist()->onFileChanged(root, FILE_SORTED);
+	// persist quick delete setting
+	if (settings->getBool("QuickRomDeletion") != mFastDel->getState())
+	{
+		settings->setBool("QuickRomDeletion", mFastDel->getState());
+		persistFile = true;
+	}
+	
+	if (persistFile)
+	{
+		settings->saveFile();
+	}
+
+	if (notifySort)
+	{
+		// notify that the root folder was sorted
+		getGamelist()->onFileChanged(root, FILE_SORTED);
+	}
 }
 
 void GuiGamelistOptions::openMetaDataEd()
@@ -92,10 +111,7 @@ void GuiGamelistOptions::openMetaDataEd()
 	p.system = file->getSystem();
 	mWindow->pushGui(new GuiMetaDataEd(mWindow, &file->metadata, file->metadata.getMDD(), p, file->getPath().filename().string(), 
 		std::bind(&IGameListView::onFileChanged, getGamelist(), file, FILE_METADATA_CHANGED), [this, file] { 
-			boost::filesystem::remove(file->getPath()); //actually delete the file on the filesystem
-			file->getParent()->removeChild(file); //unlink it so list repopulations triggered from onFileChanged won't see it
-			getGamelist()->onFileChanged(file, FILE_REMOVED); //tell the view
-			delete file; //free it
+			getGamelist()->remove(file);
 	}));
 }
 

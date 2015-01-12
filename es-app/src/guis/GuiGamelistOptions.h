@@ -26,6 +26,9 @@ private:
 
 	typedef OptionListComponent<const FileData::SortType*> SortList;
 	std::shared_ptr<SortList> mListSort;
+
+	typedef SwitchComponent DeleteSwitch;
+	std::shared_ptr<DeleteSwitch> mFastDel;
 	
 	typedef SwitchComponent FileSwitch;
 	std::shared_ptr<FileSwitch> mShowFile;

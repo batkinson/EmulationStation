@@ -2,6 +2,7 @@
 #include "GuiMetaDataEd.h"
 #include "views/gamelist/IGameListView.h"
 #include "views/ViewController.h"
+#include "Settings.h"
 
 GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : GuiComponent(window), 
 	mSystem(system), 
@@ -44,6 +45,11 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 
 	mMenu.addWithLabel("SORT GAMES BY", mListSort);
 
+	// quick rom deletion
+	mFastDel = std::make_shared<DeleteSwitch>(mWindow);
+	mFastDel->setState(Settings::getInstance()->getBool("QuickRomDeletion"));
+	mMenu.addWithLabel("QUICK ROM DELETE", mFastDel);
+
 	// edit game metadata
 	row.elements.clear();
 	row.addElement(std::make_shared<TextComponent>(mWindow, "EDIT THIS GAME'S METADATA", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
@@ -61,6 +67,14 @@ GuiGamelistOptions::~GuiGamelistOptions()
 	// apply sort
 	FileData* root = getGamelist()->getCursor()->getSystem()->getRootFolder();
 	root->sort(*mListSort->getSelected()); // will also recursively sort children
+
+       // persist quick delete setting
+       Settings *settings = Settings::getInstance();
+       if (settings->getBool("QuickRomDeletion") != mFastDel->getState())
+       {
+               settings->setBool("QuickRomDeletion", mFastDel->getState());
+               settings->saveFile();
+       }
 
 	// notify that the root folder was sorted
 	getGamelist()->onFileChanged(root, FILE_SORTED);

@@ -1,5 +1,6 @@
 #include "GuiComponent.h"
 #include "components/MenuComponent.h"
+#include "components/SwitchComponent.h"
 #include "components/OptionListComponent.h"
 #include "FileSorts.h"
 
@@ -25,6 +26,9 @@ private:
 
 	typedef OptionListComponent<const FileData::SortType*> SortList;
 	std::shared_ptr<SortList> mListSort;
+
+	typedef SwitchComponent DeleteSwitch;
+	std::shared_ptr<DeleteSwitch> mFastDel;
 	
 	SystemData* mSystem;
 	IGameListView* getGamelist();

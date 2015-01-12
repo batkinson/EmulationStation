@@ -55,7 +55,16 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 {
 	if(input.value != 0)
 	{
-		if(config->isMappedTo("a", input))
+		if(input.id == SDLK_DELETE && Settings::getInstance()->getBool("QuickRomDeletion"))
+		{
+			FileData* cursor = getCursor();
+			if (cursor->getType() == GAME)
+			{
+				remove(cursor);
+			}
+			return true;
+		}
+		else if(config->isMappedTo("a", input))
 		{
 			FileData* cursor = getCursor();
 			if(cursor->getType() == GAME)

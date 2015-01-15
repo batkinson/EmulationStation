@@ -75,12 +75,11 @@ GuiGamelistOptions::~GuiGamelistOptions()
 
 	// persist rom filename setting
 	Settings *settings = Settings::getInstance();
-	bool persistFile = false, notifySort = true;
+	bool persistFile = false;
 	if (settings->getBool("ShowRomFilename") != mShowFile->getState())
 	{
-		settings->setBool("ShowRomFilename", mShowFile->getState());		
-		ViewController::get()->reloadAll();
-		notifySort = false, persistFile = true;
+		settings->setBool("ShowRomFilename", mShowFile->getState());
+		persistFile = true;
 	}
 
 	// persist quick delete setting
@@ -95,11 +94,8 @@ GuiGamelistOptions::~GuiGamelistOptions()
 		settings->saveFile();
 	}
 
-	if (notifySort)
-	{
-		// notify that the root folder was sorted
-		getGamelist()->onFileChanged(root, FILE_SORTED);
-	}
+	// notify that the root folder was sorted
+	getGamelist()->onFileChanged(root, FILE_SORTED);
 }
 
 void GuiGamelistOptions::openMetaDataEd()

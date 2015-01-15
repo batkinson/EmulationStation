@@ -41,11 +41,9 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 
 	mHeaderText.setText(files.at(0)->getSystem()->getFullName());
 
-	Settings *settings = Settings::getInstance();
-	bool showFilename = settings->getBool("ShowRomFilename");
 	for(auto it = files.begin(); it != files.end(); it++)
 	{
-		mList.add(showFilename? (*it)->getPath().filename().string() : (*it)->getName(), *it, ((*it)->getType() == FOLDER));
+		mList.add((*it)->getName(), *it, ((*it)->getType() == FOLDER));
 	}
 }
 

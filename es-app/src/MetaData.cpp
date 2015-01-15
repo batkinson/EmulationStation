@@ -42,3 +42,21 @@ MetaDataMap::MetaDataMap(MetaDataListType type)
 	for(auto iter = mdd.begin(); iter != mdd.end(); iter++)
 		set(iter->key, iter->defaultValue);
 }
+
+template<>
+boost::posix_time::ptime MetaDataMap::get(const char* key) const
+{
+	return string_to_ptime(mMap.at(key), "%Y%m%dT%H%M%S%F%q");
+}
+
+template<>
+void MetaDataMap::set(const char* key, const std::string& value)
+{
+	mMap[key] = value;
+}
+
+template<>
+void MetaDataMap::set(const char* key, const boost::posix_time::ptime& time)
+{
+	mMap[key] = boost::posix_time::to_iso_string(time);
+}

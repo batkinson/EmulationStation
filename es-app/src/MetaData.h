@@ -62,12 +62,6 @@ public:
 		return boost::lexical_cast<T>(mMap.at(key));
 	}
 
-	template<>
-	boost::posix_time::ptime get(const char* key) const
-	{
-		return string_to_ptime(mMap.at(key), "%Y%m%dT%H%M%S%F%q");
-	}
-
 	template<typename T>
 	T get(const std::string& key) const
 	{
@@ -79,18 +73,6 @@ public:
 	void set(const char* key, const T& value)
 	{
 		mMap[key] = boost::lexical_cast<std::string>(value);
-	}
-
-	template<>
-	void set(const char* key, const std::string& value)
-	{
-		mMap[key] = value;
-	}
-
-	template<>
-	void set(const char* key, const boost::posix_time::ptime& time)
-	{
-		mMap[key] = boost::posix_time::to_iso_string(time);
 	}
 
 	template<typename T>

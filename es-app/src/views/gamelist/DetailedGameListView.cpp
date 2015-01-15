@@ -2,6 +2,7 @@
 #include "views/ViewController.h"
 #include "Window.h"
 #include "animations/LambdaAnimation.h"
+#include "Settings.h"
 
 DetailedGameListView::DetailedGameListView(Window* window, FileData* root) : 
 	BasicGameListView(window, root), 
@@ -10,9 +11,10 @@ DetailedGameListView::DetailedGameListView(Window* window, FileData* root) :
 
 	mLblRating(window), mLblReleaseDate(window), mLblDeveloper(window), mLblPublisher(window), 
 	mLblGenre(window), mLblPlayers(window), mLblLastPlayed(window), mLblPlayCount(window),
+	mLblFilename(window),
 
 	mRating(window), mReleaseDate(window), mDeveloper(window), mPublisher(window), 
-	mGenre(window), mPlayers(window), mLastPlayed(window), mPlayCount(window)
+	mGenre(window), mPlayers(window), mLastPlayed(window), mPlayCount(window), mFilename(window)
 {
 	//mHeaderImage.setPosition(mSize.x() * 0.25f, 0);
 
@@ -55,6 +57,16 @@ DetailedGameListView::DetailedGameListView(Window* window, FileData* root) :
 	mLblPlayCount.setText("Times played: ");
 	addChild(&mLblPlayCount);
 	addChild(&mPlayCount);
+	if (Settings::getInstance()->getBool("ShowRomFilename"))
+	{
+		mLblFilename.setText("Filename: ");
+	}
+	else
+	{
+		mLblFilename.setText("");
+	}
+	addChild(&mLblFilename);
+	addChild(&mFilename);
 
 	mDescContainer.setPosition(mSize.x() * padding, mSize.y() * 0.65f);
 	mDescContainer.setSize(mSize.x() * (0.50f - 2*padding), mSize.y() - mDescContainer.getPosition().y());
@@ -80,10 +92,10 @@ void DetailedGameListView::onThemeChanged(const std::shared_ptr<ThemeData>& them
 
 	initMDLabels();
 	std::vector<TextComponent*> labels = getMDLabels();
-	assert(labels.size() == 8);
-	const char* lblElements[8] = {
+	assert(labels.size() == 9);
+	const char* lblElements[9] = {
 		"md_lbl_rating", "md_lbl_releasedate", "md_lbl_developer", "md_lbl_publisher", 
-		"md_lbl_genre", "md_lbl_players", "md_lbl_lastplayed", "md_lbl_playcount"
+		"md_lbl_genre", "md_lbl_players", "md_lbl_lastplayed", "md_lbl_playcount", "md_lbl_filename"
 	};
 
 	for(unsigned int i = 0; i < labels.size(); i++)
@@ -94,10 +106,10 @@ void DetailedGameListView::onThemeChanged(const std::shared_ptr<ThemeData>& them
 
 	initMDValues();
 	std::vector<GuiComponent*> values = getMDValues();
-	assert(values.size() == 8);
-	const char* valElements[8] = {
+	assert(values.size() == 9);
+	const char* valElements[9] = {
 		"md_rating", "md_releasedate", "md_developer", "md_publisher", 
-		"md_genre", "md_players", "md_lastplayed", "md_playcount"
+		"md_genre", "md_players", "md_lastplayed", "md_playcount", "md_filename"
 	};
 
 	for(unsigned int i = 0; i < values.size(); i++)
@@ -158,6 +170,7 @@ void DetailedGameListView::initMDValues()
 	mPlayers.setFont(defaultFont);
 	mLastPlayed.setFont(defaultFont);
 	mPlayCount.setFont(defaultFont);
+	mFilename.setFont(defaultFont);
 
 	float bottom = 0.0f;
 
@@ -202,6 +215,14 @@ void DetailedGameListView::updateInfoPanel()
 			mPlayers.setValue(file->metadata.get("players"));
 			mLastPlayed.setValue(file->metadata.get("lastplayed"));
 			mPlayCount.setValue(file->metadata.get("playcount"));
+			if (Settings::getInstance()->getBool("ShowRomFilename")) 
+			{
+				mFilename.setValue(file->getPath().filename().generic_string());
+			} 
+			else
+			{
+				mFilename.setValue("");
+			}
 		}
 		
 		fadingOut = false;
@@ -252,6 +273,7 @@ std::vector<TextComponent*> DetailedGameListView::getMDLabels()
 	ret.push_back(&mLblPlayers);
 	ret.push_back(&mLblLastPlayed);
 	ret.push_back(&mLblPlayCount);
+	ret.push_back(&mLblFilename);
 	return ret;
 }
 
@@ -266,5 +288,6 @@ std::vector<GuiComponent*> DetailedGameListView::getMDValues()
 	ret.push_back(&mPlayers);
 	ret.push_back(&mLastPlayed);
 	ret.push_back(&mPlayCount);
+	ret.push_back(&mFilename);
 	return ret;
 }

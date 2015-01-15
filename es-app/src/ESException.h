@@ -12,13 +12,13 @@ public:
 	}
 
 	template<typename T>
-	friend ESException& operator<<(ESException& e, T msg);
+	friend ESException operator<<(ESException e, T msg);
 private:
 	std::string mMsg;
 };
 
 template<typename T>
-ESException& operator<<(ESException& e, T appendMsg)
+ESException operator<<(ESException e, T appendMsg)
 {
 	std::stringstream ss;
 	ss << e.mMsg << appendMsg;

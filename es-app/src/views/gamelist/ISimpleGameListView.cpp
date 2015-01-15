@@ -65,8 +65,8 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 	{
 		if(input.id == SDLK_DELETE && Settings::getInstance()->getBool("QuickRomDeletion"))
 		{
-			FileData* cursor = getCursor();
-			if (cursor->getType() == GAME)
+			const FileData& cursor = getCursor();
+			if (cursor.getType() == GAME)
 			{
 				remove(cursor);
 			}

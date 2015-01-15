@@ -90,6 +90,9 @@ endif()
 
 add_definitions(-DEIGEN_DONT_ALIGN)
 
+# disable dynamic loading functions, we're statically linking
+add_definitions(-DSQLITE_OMIT_LOAD_EXTENSION)
+
 #-------------------------------------------------------------------------------
 #add include directories
 set(COMMON_INCLUDE_DIRS

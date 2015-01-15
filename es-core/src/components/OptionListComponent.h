@@ -234,10 +234,7 @@ public:
 
 	T getSelected()
 	{
-		assert(mMultiSelect == false);
-		auto selected = getSelectedObjects();
-		assert(selected.size() == 1);
-		return selected.at(0);
+		return mEntries.at(getSelectedId()).object;
 	}
 
 	void add(const std::string& name, const T& obj, bool selected)

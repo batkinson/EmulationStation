@@ -56,10 +56,21 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 			auto s = new GuiSettings(mWindow, "SCRAPER");
 
 			// scrape from
-			auto scraper_list = std::make_shared< OptionListComponent< std::string > >(mWindow, "SCRAPE FROM", false);
 			std::vector<std::string> scrapers = getScraperList();
+			auto configured = Settings::getInstance()->getString("Scraper");
+			if (std::find(scrapers.begin(), scrapers.end(), configured) == scrapers.end())
+			{
+				auto fallback = scrapers.at(0);
+				LOG(LogWarning) << "Configured scraper " << configured
+					<< " unavailable. Falling back to " << fallback << " scraper.";
+				configured = fallback;
+			}
+
+			auto scraper_list = std::make_shared< OptionListComponent< std::string > >(mWindow, "SCRAPE FROM", false);
 			for(auto it = scrapers.begin(); it != scrapers.end(); it++)
-				scraper_list->add(*it, *it, *it == Settings::getInstance()->getString("Scraper"));
+			{
+				scraper_list->add(*it, *it, *it == configured);
+			}
 
 			s->addWithLabel("SCRAPE FROM", scraper_list);
 			s->addSaveFunc([scraper_list] { Settings::getInstance()->setString("Scraper", scraper_list->getSelected()); });

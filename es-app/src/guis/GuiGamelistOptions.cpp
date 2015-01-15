@@ -75,7 +75,6 @@ GuiGamelistOptions::~GuiGamelistOptions()
 	{
 		settings->setBool("ShowRomFilename", mShowFile->getState());
 		settings->saveFile();
-		return;
 	}
 
 	// notify that the root folder was sorted

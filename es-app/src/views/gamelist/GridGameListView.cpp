@@ -40,11 +40,9 @@ void GridGameListView::populateList(const std::vector<FileData*>& files)
 {
 	mGrid.clear();
 
-	Settings *settings = Settings::getInstance();
-	bool showFilename = settings->getBool("ShowRomFilename");
 	for(auto it = files.begin(); it != files.end(); it++)
 	{
-		mGrid.add(showFilename? (*it)->getPath().filename().string() : (*it)->getName(), (*it)->getThumbnailPath(), *it);
+		mGrid.add((*it)->getName(), (*it)->getThumbnailPath(), *it);
 	}
 }
 

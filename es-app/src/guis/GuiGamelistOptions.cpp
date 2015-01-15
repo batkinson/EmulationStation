@@ -75,7 +75,6 @@ GuiGamelistOptions::~GuiGamelistOptions()
 	{
 		settings->setBool("ShowRomFilename", mShowFile->getState());
 		settings->saveFile();
-		ViewController::get()->reloadAll();
 		return;
 	}
 

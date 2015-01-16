@@ -148,6 +148,16 @@ public:
 		return false;
 	}
 	
+	int cursorPos()
+	{
+		return mCursor;
+	}
+
+	void setCursorPos(int pos)
+	{
+		setCursor(mEntries.at(pos).object);
+	}
+
 	// entry management
 	void add(const Entry& e)
 	{

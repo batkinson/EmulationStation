@@ -68,21 +68,20 @@ void BasicGameListView::launch(FileData& game)
 
 void BasicGameListView::remove(const FileData &game)
 {
-
+	LOG(LogInfo) << "Removing " << game.getPath();
 	boost::filesystem::remove(game.getPath());  // actually delete the file on the filesystem
 	if (getCursor() == game)                     // Select next element in list, or prev if none
 	{
-		std::vector<FileData> siblings = game.getChildren();
-		auto gameIter = std::find(siblings.begin(), siblings.end(), game);
-		auto gamePos = std::distance(siblings.begin(), gameIter);
-		if (gameIter != siblings.end())
+		auto gamePos = mList.cursorPos();
+		if ((gamePos + 1) < mList.size())
 		{
-			if ((gamePos + 1) < siblings.size())
-			{
-				setCursor(siblings.at(gamePos + 1));
-			} else if ((gamePos - 1) > 0) {
-				setCursor(siblings.at(gamePos - 1));
-			}
+			int nextPos = gamePos + 1;
+			LOG(LogDebug) << "Advancing cursor to position " << nextPos;
+			mList.setCursorPos(nextPos);
+		} else if ((gamePos - 1) > 0) {
+			int prevPos = gamePos - 1;
+			LOG(LogDebug) << "Regressing cursor to position " << prevPos;
+			mList.setCursorPos(prevPos);
 		}
 	}
 	// remove before updating
